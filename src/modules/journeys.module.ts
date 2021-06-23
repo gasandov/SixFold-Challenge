@@ -26,7 +26,7 @@ export const getRouteAndDistance = async (origin: string, destn: string): Promis
 
   return {
     route: route.join(" -> "),
-    distance,
+    distance: +(distance.toFixed(2)),
     message: "Shortest route was found"
   };
 };
