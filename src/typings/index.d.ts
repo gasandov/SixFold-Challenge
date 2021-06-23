@@ -41,3 +41,8 @@ interface IAirportMap {
     country: string;
   }
 }
+
+interface ICoordinates {
+  latitude: string;
+  longitude: string;
+}
