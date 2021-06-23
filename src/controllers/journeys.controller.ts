@@ -1,21 +1,32 @@
 import { Request, Response } from "express";
 
-import { getCalculatedPath } from "../modules/journeys.module";
+import { getRouteAndDistance } from "../modules/journeys.module";
 
 type Params = {};
 type Body = {};
-type Query = {};
+type Query = {
+  from: string;
+  to: string;
+};
 
 type Req = Request<Params, {}, Body, Query>;
 
 export const journeyPath = async (req: Req, res: Response) => {
   try {
-    const path = getCalculatedPath();
-
-    res.status(200).json({
-      success: true,
-      data: path
-    });
+    if (req.query?.from && req.query?.to) {
+      const { from, to } = req.query;
+      const result = await getRouteAndDistance(from, to);
+  
+      res.status(200).json({
+        success: true,
+        data: result
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "Please provide an origin and destination"
+      });
+    }
   } catch (error) {
     res.status(500).json({
       success: false,
