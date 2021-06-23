@@ -621,6 +621,13 @@
     "@types/qs" "*"
     "@types/serve-static" "*"
 
+"@types/geolib@^2.0.23":
+  version "2.0.23"
+  resolved "https://artylab.expedia.biz/api/npm/public-npm-virtual/@types/geolib/-/geolib-2.0.23.tgz#83aa8d2772f3898daec211eac176583bd466b418"
+  integrity sha1-g6qNJ3LziY2uwhHqwXZYO9RmtBg=
+  dependencies:
+    geolib "*"
+
 "@types/graceful-fs@^4.1.2":
   version "4.1.5"
   resolved "https://artylab.expedia.biz/api/npm/public-npm-virtual/@types/graceful-fs/-/graceful-fs-4.1.5.tgz#21ffba0d98da4350db64891f92a9e5db3cdb4e15"
@@ -918,6 +925,11 @@ binary-extensions@^2.0.0:
   version "2.2.0"
   resolved "https://artylab.expedia.biz/api/npm/public-npm-virtual/binary-extensions/-/binary-extensions-2.2.0.tgz#75f502eeaf9ffde42fc98829645be4ea76bd9e2d"
   integrity sha1-dfUC7q+f/eQvyYgpZFvk6na9ni0=
+
+bluebird@^3.5.1:
+  version "3.7.2"
+  resolved "https://artylab.expedia.biz/api/npm/public-npm-virtual/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
+  integrity sha1-nyKcFb4nJFT/qXOs4NvueaGww28=
 
 body-parser@1.19.0:
   version "1.19.0"
@@ -1263,6 +1275,15 @@ cssstyle@^2.3.0:
   integrity sha1-/2ZaDdvcMYZLCWR/NBY0Q9kLCFI=
   dependencies:
     cssom "~0.3.6"
+
+csvtojson@^2.0.10:
+  version "2.0.10"
+  resolved "https://artylab.expedia.biz/api/npm/public-npm-virtual/csvtojson/-/csvtojson-2.0.10.tgz#11e7242cc630da54efce7958a45f443210357574"
+  integrity sha1-EeckLMYw2lTvznlYpF9EMhA1dXQ=
+  dependencies:
+    bluebird "^3.5.1"
+    lodash "^4.17.3"
+    strip-bom "^2.0.0"
 
 data-urls@^2.0.0:
   version "2.0.0"
@@ -1641,6 +1662,11 @@ gensync@^1.0.0-beta.2:
   resolved "https://artylab.expedia.biz/api/npm/public-npm-virtual/gensync/-/gensync-1.0.0-beta.2.tgz#32a6ee76c3d7f52d46b2b1ae5d93fea8580a25e0"
   integrity sha1-MqbudsPX9S1GsrGuXZP+qFgKJeA=
 
+geolib@*, geolib@^3.3.1:
+  version "3.3.1"
+  resolved "https://artylab.expedia.biz/api/npm/public-npm-virtual/geolib/-/geolib-3.3.1.tgz#f144a53b6a6858e81111ff71d137318389927611"
+  integrity sha1-8USlO2poWOgREf9x0Tcxg4mSdhE=
+
 get-caller-file@^2.0.5:
   version "2.0.5"
   resolved "https://artylab.expedia.biz/api/npm/public-npm-virtual/get-caller-file/-/get-caller-file-2.0.5.tgz#4f94412a82db32f36e3b0b9741f8a97feb031f7e"
@@ -1980,6 +2006,11 @@ is-typedarray@^1.0.0:
   version "1.0.0"
   resolved "https://artylab.expedia.biz/api/npm/public-npm-virtual/is-typedarray/-/is-typedarray-1.0.0.tgz#e479c80858df0c1b11ddda6940f96011fcda4a9a"
   integrity sha1-5HnICFjfDBsR3dppQPlgEfzaSpo=
+
+is-utf8@^0.2.0:
+  version "0.2.1"
+  resolved "https://artylab.expedia.biz/api/npm/public-npm-virtual/is-utf8/-/is-utf8-0.2.1.tgz#4b0da1442104d1b336340e80797e865cf39f7d72"
+  integrity sha1-Sw2hRCEE0bM2NA6AeX6GXPOffXI=
 
 is-yarn-global@^0.3.0:
   version "0.3.0"
@@ -2558,7 +2589,7 @@ locate-path@^5.0.0:
   dependencies:
     p-locate "^4.1.0"
 
-lodash@4.x, lodash@^4.7.0:
+lodash@4.x, lodash@^4.17.3, lodash@^4.7.0:
   version "4.17.21"
   resolved "https://artylab.expedia.biz/api/npm/public-npm-virtual/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha1-Z5WRxWTDv/quhFTPCz3zcMPWkRw=
@@ -3286,6 +3317,13 @@ strip-ansi@^6.0.0:
   integrity sha1-CxVx3XZpzNTz4G4U7x7tJiJa5TI=
   dependencies:
     ansi-regex "^5.0.0"
+
+strip-bom@^2.0.0:
+  version "2.0.0"
+  resolved "https://artylab.expedia.biz/api/npm/public-npm-virtual/strip-bom/-/strip-bom-2.0.0.tgz#6219a85616520491f35788bdbf1447a99c7e6b0e"
+  integrity sha1-YhmoVhZSBJHzV4i9vxRHqZx+aw4=
+  dependencies:
+    is-utf8 "^0.2.0"
 
 strip-bom@^4.0.0:
   version "4.0.0"
