@@ -26,6 +26,9 @@ interface IRoute {
   equipment: string;
 }
 
+interface IRouteGraph {
+  [key: string]: {[key: string]: number};
+}
 interface IRouteMap {
   [key: string]: string[];
 }
@@ -45,4 +48,10 @@ interface IAirportMap {
 interface ICoordinates {
   latitude: string;
   longitude: string;
+}
+
+interface IRouteDistanceFn {
+  route: string;
+  distance: number;
+  message: string;
 }
