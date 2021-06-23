@@ -1,34 +1,31 @@
 import {
-  getRoutesMap,
   getAirportsMap,
+  getRoutesGraph,
+  getShortestRoute,
   getDataFromFileAsJson,
-  determineShortestRoute,
-  determinePossibleRoutes
 } from "../models/journeys.model";
 
-export const getRouteAndDistance = async (origin: string, destn: string) => {
-  // TODO: Check if from and to are valid input airpot codes (is necessary?)
+export const getRouteAndDistance = async (origin: string, destn: string): Promise<IRouteDistanceFn> => {
+  // TODO (is necessary?): Check if from and to are valid input airpot codes
+
+  const airports: IAirport[] = await getDataFromFileAsJson("airports");
+  const airportsMap: IAirportMap = getAirportsMap(airports);
 
   const routes: IRoute[] = await getDataFromFileAsJson("routes");
-  const routesMap: IRouteMap = getRoutesMap(routes);
+  const routesGraph: IRouteGraph = getRoutesGraph(routes, airportsMap);
 
-  const determinedRoutes: string[] = determinePossibleRoutes(origin, destn, routesMap);
+  const { route, distance } = getShortestRoute(routesGraph, origin, destn);
 
-  if (determinedRoutes.length === 0) {
+  if (route.length === 1) {
     return {
       route: "",
       distance: 0,
       message: `Route was not found for provided inputs`
     };
   }
-  
-  const airports: IAirport[] = await getDataFromFileAsJson("airports");
-  const airportsMap: IAirportMap = getAirportsMap(airports);
-
-  const { route, distance } = determineShortestRoute(determinedRoutes, airportsMap);
 
   return {
-    route,
+    route: route.join(" -> "),
     distance,
     message: "Shortest route was found"
   };

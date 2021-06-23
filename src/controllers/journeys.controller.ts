@@ -15,7 +15,7 @@ export const journeyPath = async (req: Req, res: Response) => {
   try {
     if (req.query?.from && req.query?.to) {
       const { from, to } = req.query;
-      const result = await getRouteAndDistance(from, to);
+      const result: IRouteDistanceFn = await getRouteAndDistance(from, to);
   
       res.status(200).json({
         success: true,

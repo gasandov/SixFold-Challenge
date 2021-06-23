@@ -4,39 +4,62 @@ import { convertDistance, getDistance } from "geolib";
 /**
  * @description Read file from resources dir and format data into JSON format
  * @param fileName
- * @returns {Object<T>}
+ * @returns {object} JSON
  */
 export const getDataFromFileAsJson = async <T>(fileName: string): Promise<T[]> => {
   return csv().fromFile(`./resources/${fileName}.csv`);
 };
 
 /**
- * @description Build a key - value map where the key is the source aiport and the value
- * is an array of available destinations
+ * @description Build a grahp where nodes are the origins and children are the destinations
  * @param routes Array of objects
- * @returns {Object}
+ * @returns {Object} { MYA: { MIM: 113, SYD: 234 } }
  */
-export const getRoutesMap = (routes: IRoute[]): IRouteMap => {
-  const routesMap: IRouteMap = {}
+export const getRoutesGraph = (routes: IRoute[], airportsMap: IAirportMap): IRouteGraph => {
+  const routesGraph: IRouteGraph = {}
+  const weights: {[key: string]: number} = {};
 
   for (let route of routes) {
     const { source_airport: source, destination_apirport: destination } = route;
 
-    if (routesMap[source]) {
-      routesMap[source].push(destination);
-    } else {
-      routesMap[source] = [destination];
+    if (airportsMap[source] && airportsMap[destination]) {
+      const { lat: lat2, long: long2 } = airportsMap[destination];
+      const { lat, long } = airportsMap[source];
+
+      const fromToKey = `${source}/${destination}`;
+      const toFromKey = `${destination}/${source}`;
+
+      const weight = weights[fromToKey] || weights[toFromKey] || getGreatCircleDistance(
+        { latitude: lat, longitude: long },
+        { latitude: lat2, longitude: long2 }
+      );
+       
+      weights[fromToKey] = weight;
+
+      if (routesGraph[source]) {
+        routesGraph[source][destination] = weight;
+      } else {
+        routesGraph[source] = { [destination]: weight }
+      }
+    }
+
+    if (!airportsMap[source]) {
+      routesGraph[source] = {};
+    }
+
+    if (!airportsMap[destination]) {
+      routesGraph[source] = {};
     }
   }
 
-  return routesMap;
+  return routesGraph;
 };
 
 /**
  * @description Build a key - value map where the key is the iata code and the value
  * is an object holding aiport's information
  * @param airports Array of objects
- * @returns {Object}
+ * @returns {Object} { "ABC": { iata, name, city ...} }
  */
 export const getAirportsMap = (airports: IAirport[]): IAirportMap => {
   const airportsMap: IAirportMap = {};
@@ -66,92 +89,104 @@ export const getAirportsMap = (airports: IAirport[]): IAirportMap => {
   return airportsMap;
 };
 
-export const determinePossibleRoutes = (
+/**
+ * @description get shortest distance between nodes by using Dijkstra’s Algorithm
+ * @param graph { "ABC": { "GHI": 200, "BJF": 100 } }
+ * @param origin "ABC"
+ * @param destn "GHI"
+ * @returns {object} { route: ["ABC", "GHI"], distance: 200 }
+ */
+export const getShortestRoute = (
+  graph: IRouteGraph,
   origin: string,
-  destn: string,
-  routesMap: IRouteMap
-): string[] => {
-  let path = "";
-  const routes: string[] = [];
+  destn: string
+): { route: string[], distance: number } => {
+  let distances: {[key: string]: number} = {};
+  distances[destn] = Infinity;
+  distances = Object.assign(distances, graph[origin]);
 
-  const traverseRoutes = (routesMap: IRouteMap) => {
-    if (routesMap[origin]) {
-      const destinations = routesMap[origin];
+  const parents: {[key: string]: (string | null)} = { [origin]: null };
+  
+  for (let child in graph[origin]) {
+    parents[child] = origin;
+  }
 
-      if (destinations.includes(destn)) {
-        path += `${origin},${destn}`; 
-        routes.push(path);
-        return;
+  const visited = new Set<string>();
+  let node = shortestDistanceNode(distances, visited)
+
+  while (node) {
+    let distance = distances[node];
+    let children = graph[node];
+
+    for (let child in children) {
+      if (child === origin) {
+        continue;
       } else {
-        // start looking for different paths
+        let newDistance = distance + children[child];
+
+        if (!distances[child] || distances[child] > newDistance) {
+          distances[child] = newDistance;
+          parents[child] = node;
+        }
       }
-
-    } else {
-      return;
     }
+
+    visited.add(node);
+    node = shortestDistanceNode(distances, visited);
+  }
+
+  const shortestPath = [destn];
+  let parent = parents[destn];
+
+  while (parent) {
+    shortestPath.push(parent);
+    parent = parents[parent];
+  }
+
+  shortestPath.reverse();
+
+  return {
+    route: shortestPath,
+    distance: distances[destn]
   };
-
-  traverseRoutes(routesMap);
-
-  return routes;
 };
 
 /**
- * @description For each possible route, determine which one has the shortest geographical
- * distance between origin and destination
- * @param routes Array of strings e.g. ["ABC,DCA"] holding paths as comma separated strings
- * @param airportsMap Map of aiports
- * @returns {Object} holding distance and shortest route
+ * @description get the nearest node based on shortest distance
+ * @param distances { { "ABC": 100, "FGH": 250 } }
+ * @param visited {Set} holding visted nodes
+ * @returns {string | null} "ABC | null"
  */
-export const determineShortestRoute = (
-  routes: string[],
-  airportsMap: IAirportMap
-): { route: string, distance: number } => {
-  const result = { route: "", distance: Number.MAX_SAFE_INTEGER };
+export const shortestDistanceNode = (
+  distances: {[key: string]: number},
+  visited: Set<string>
+): (string | null) => {
+  let shortest = null;
 
-  for (let route of routes) {
-    const stops = route.split(",");
-    const distance = calculateRoutesDistance(stops, airportsMap);
+  for (let node in distances) {
+    let currentShortest = shortest === null || distances[node] < distances[shortest];
 
-    if (distance < result.distance) {
-      result.route = route;
-      result.distance = distance;
+    if (currentShortest && !visited.has(node)) {
+      shortest = node;
     }
   }
 
-  return result;
+  return shortest;
 };
 
-export const calculateRoutesDistance = (
-  stops: string[],
-  airportsMap: IAirportMap
-) => {
-  let distance = 0;
-  let prevCoordinates = {};
-
-  for (let stop of stops) {
-    const { lat, long } = airportsMap[stop];
-
-    if (Object.keys(prevCoordinates).length !== 0) {
-      const [lat2, long2] = Object.values(prevCoordinates);
-
-      distance += getGreatCircleDistance(
-        { latitude: lat, longitude: long },
-        { latitude: lat2, longitude: long2 }
-      );
-    }
-
-    prevCoordinates = { lat: lat, long: long }
-  }
-
-  return distance;
-};
-
+/**
+ * @description Calculate the geographical distance between coordinates by
+ * using great circle distance formula (npm package)
+ * @param originCoord { latitude: string, longitude: string }
+ * @param desntCoord { latitude: string, longitude: string }
+ * @param unit "km" | TBD
+ * @returns {number} 100.103
+ */
 export const getGreatCircleDistance = (
   originCoord: ICoordinates,
   desntCoord: ICoordinates,
   unit: string = "km"
-) => {
+): number => {
   const rawDistance = getDistance(originCoord, desntCoord);
   return convertDistance(rawDistance, unit);
 };
