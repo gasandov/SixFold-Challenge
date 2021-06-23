@@ -7,7 +7,7 @@ import {
 } from "../models/journeys.model";
 
 export const getRouteAndDistance = async (origin: string, destn: string) => {
-  // TODO: Check if from and to are valid input airpot codes
+  // TODO: Check if from and to are valid input airpot codes (is necessary?)
 
   const routes: IRoute[] = await getDataFromFileAsJson("routes");
   const routesMap: IRouteMap = getRoutesMap(routes);

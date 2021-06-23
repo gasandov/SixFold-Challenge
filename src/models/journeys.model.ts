@@ -1,10 +1,21 @@
 import csv from "csvtojson";
 import { convertDistance, getDistance } from "geolib";
 
+/**
+ * @description Read file from resources dir and format data into JSON format
+ * @param fileName
+ * @returns {Object<T>}
+ */
 export const getDataFromFileAsJson = async <T>(fileName: string): Promise<T[]> => {
   return csv().fromFile(`./resources/${fileName}.csv`);
 };
 
+/**
+ * @description Build a key - value map where the key is the source aiport and the value
+ * is an array of available destinations
+ * @param routes Array of objects
+ * @returns {Object}
+ */
 export const getRoutesMap = (routes: IRoute[]): IRouteMap => {
   const routesMap: IRouteMap = {}
 
@@ -21,6 +32,12 @@ export const getRoutesMap = (routes: IRoute[]): IRouteMap => {
   return routesMap;
 };
 
+/**
+ * @description Build a key - value map where the key is the iata code and the value
+ * is an object holding aiport's information
+ * @param airports Array of objects
+ * @returns {Object}
+ */
 export const getAirportsMap = (airports: IAirport[]): IAirportMap => {
   const airportsMap: IAirportMap = {};
 
@@ -79,6 +96,13 @@ export const determinePossibleRoutes = (
   return routes;
 };
 
+/**
+ * @description For each possible route, determine which one has the shortest geographical
+ * distance between origin and destination
+ * @param routes Array of strings e.g. ["ABC,DCA"] holding paths as comma separated strings
+ * @param airportsMap Map of aiports
+ * @returns {Object} holding distance and shortest route
+ */
 export const determineShortestRoute = (
   routes: string[],
   airportsMap: IAirportMap
@@ -87,25 +111,7 @@ export const determineShortestRoute = (
 
   for (let route of routes) {
     const stops = route.split(",");
-    let coordinates = {};
-    let distance = 0;
-
-    for (let stop of stops) {
-      const { lat, long } = airportsMap[stop];
-
-      if (Object.keys(coordinates).length !== 0) {
-        const [lat2, long2] = Object.values(coordinates);
-      
-        const rawDistance = getDistance(
-          { latitude: lat, longitude: long },
-          { latitude: lat2, longitude: long2 }
-        );
-
-        distance += convertDistance(rawDistance, "km");
-      }
-      
-      coordinates = { lat: lat, long: long }
-    }
+    const distance = calculateRoutesDistance(stops, airportsMap);
 
     if (distance < result.distance) {
       result.route = route;
@@ -114,4 +120,38 @@ export const determineShortestRoute = (
   }
 
   return result;
+};
+
+export const calculateRoutesDistance = (
+  stops: string[],
+  airportsMap: IAirportMap
+) => {
+  let distance = 0;
+  let prevCoordinates = {};
+
+  for (let stop of stops) {
+    const { lat, long } = airportsMap[stop];
+
+    if (Object.keys(prevCoordinates).length !== 0) {
+      const [lat2, long2] = Object.values(prevCoordinates);
+
+      distance += getGreatCircleDistance(
+        { latitude: lat, longitude: long },
+        { latitude: lat2, longitude: long2 }
+      );
+    }
+
+    prevCoordinates = { lat: lat, long: long }
+  }
+
+  return distance;
+};
+
+export const getGreatCircleDistance = (
+  originCoord: ICoordinates,
+  desntCoord: ICoordinates,
+  unit: string = "km"
+) => {
+  const rawDistance = getDistance(originCoord, desntCoord);
+  return convertDistance(rawDistance, unit);
 };

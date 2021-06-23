@@ -32,6 +32,5 @@ export const journeyPath = async (req: Req, res: Response) => {
       success: false,
       message: error.message
     });
-
   }
 };
