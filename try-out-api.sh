@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "start API testing"
+echo "start API checkout"
 
 echo "Route from GKA to MYA"
 one=$(curl -X GET "http://localhost:3000/journeys?from=GKA&to=MYA")
@@ -22,5 +22,5 @@ four=$(curl -X GET "http://localhost:3000/journeys?from=MAG&to=WWK")
 
 echo "$four"
 
-echo "end of testing"
+echo "end of checkout"
 
