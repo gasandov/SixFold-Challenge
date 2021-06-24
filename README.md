@@ -25,7 +25,7 @@
 
 **input:** `http://localhost:3000/journeys?from=GKA&to=MYA`
 
-**_outpot_:**
+**output:**
 
 ```JSON
 {
@@ -49,6 +49,17 @@
 }
 ```
 
+**input:** `http://localhost:3000/journeys?from=GDL`
+
+**output:**
+
+```JSON
+{
+    "success": false,
+    "message": "Please provide an origin and destination"
+}
+```
+
 **input:** `http://localhost:3000/journeys?from=ABC&to=GHA`
 
 **output:**
@@ -61,5 +72,16 @@
         "distance": 0,
         "message": "Route was not found for provided inputs"
     }
+}
+```
+
+**input:** `some unexpected error e.g api without resources`
+
+**output:**
+
+```JSON
+{
+    "success": false,
+    "message": "File does not exist. Check to make sure the file path to your csv is correct."
 }
 ```
